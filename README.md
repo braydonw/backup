@@ -19,7 +19,7 @@ This setup is 3-2-1 inspired rather than strict: multiple recoverable copies acr
 - Goal: keep multiple recoverable copies across local and remote locations
 - Remote/offsite copies currently include **Dropbox** and the **Raspberry Pi** backup host
 
-## Table of Contents
+## Table of Contents (rename this section)
 
 - [Linux](linux/README.md) - Primary
 - [Windows](windows/README.md) - Gaming
@@ -28,12 +28,12 @@ This setup is 3-2-1 inspired rather than strict: multiple recoverable copies acr
 - [Dropbox](dropbox/README.md) - Cloud Backup
 - [Recovery Playbooks](recovery/README.md)
 
-## Machine Storage Topology
+## Storage Topology
 
-- **PC**
+- **FormD T1 Desktop**
   - `4TB NVMe` — Windows
   - `4TB NVMe` — Linux
-- **Mac**
+- **Mac Mini**
   - `256GB internal NAND flash` — macOS/system
   - `4TB external HDD` — backup/media storage (lower redundancy priority)
 - **Raspberry Pi**
