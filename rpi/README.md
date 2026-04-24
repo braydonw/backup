@@ -39,8 +39,7 @@ Configured as:
 
 - RAID 1 (mirror)
 
-### Power Protection
-
+### Power Protection #todo
 
 - Amazon Basics UPS (600VA / 360W)  
     `TODO: add model here`
@@ -76,35 +75,106 @@ Set enclosure DIP switches for RAID 1 mirror mode:
 
 # Software Setup
 
-## Operating System
+## Initial System Setup
 
-Currently using **Raspberry Pi OS**, which is based on Debian Trixie and includes the Raspberry Pi Desktop environment.
+Follow the official DeskPi setup guide: https://github.com/DeskPi-Team/deskpi
 
-## DeskPi Pro Setup
+The latest Raspberry Pi Imager allows you to pre-configure the OS image with settings like:
 
-Follow the official DeskPi setup guide:
-
-https://github.com/DeskPi-Team/deskpi
-
-No need to duplicate their instructions here.
-
-## Initial Updates
+- Set hostname (`rpi`)
+- Set username/password (`bw`/`password`)
+- Configure Wi-Fi (if needed)
+- Enable SSH & add keys for remote access (use Bitwarden SSH key storage)
+- Enable Raspberry Pi Connect
+- #todo walk through this again on Windows and update this list / fix the order)
 
 ```bash
+# Update package lists and install all available upgrades
 sudo apt update && sudo apt full-upgrade -y
+
+# Run base Raspberry Pi configuration utility
+sudo raspi-config # Enable auto-login to console & desktop
+
+# Run DeskPi Pro configuration utility
+sudo deskpi-config # Enable automatic fan control or configure fan curve
 ```
 
-## Base Raspberry Pi Configuration
+
+
+
+
+
+
+
+
+# Storage Setup
+
+Use GParted or another partitioning tool.
+
+Recommended RAID volume configuration:
+
+- Partition Table: `gpt`
+- Filesystem: `ext4`
+- Label: `nas`
+
+Expected device: `/dev/sdb1` (verify with `lsblk -f`)
 
 ```bash
-sudo raspi-config
+# Create permanent mount point
+sudo mkdir -p /srv/backup
+
+# Find the UUID of /dev/sdb1
+lsblk -f
+
+# Backup current fstab
+sudo cp /etc/fstab /etc/fstab.bak
+
+# Edit fstab
+sudo nano /etc/fstab
+
+# Add this line to /etc/fstab (replace with actual UUID)
+UUID=YOUR-UUID-HERE /srv/backup ext4 defaults,nofail,noatime 0 2
+
+# Test fstab without rebooting
+sudo mount -a
+
+# Verify mount
+df -h
+
+# Set ownership to current user
+sudo chown -R $USER:$USER /srv/backup
+
+# Create backup folder
+mkdir -p /srv/backup/backup
 ```
 
-## DeskPi Configuration Utility
+After reboot or power restoration, the RAID volume will automatically mount to:
 
-```bash
-sudo deskpi-config
-```
+`/srv/backup`
+
+Primary backup folder:
+
+`/srv/backup/backup`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Storage Setup
 
@@ -118,33 +188,38 @@ Recommended configuration:
 - Filesystem: `ext4`
 - Label: `nas`
 
-Expected device:
+Expected device: `/dev/sdb1` (verify with `lsblk`)
+
+
+## Mount and Set Permissions
 
 ```bash
-/dev/sdb1
-```
-
-## Mount Drive
-
-```bash
+# Mount the RAID volume
 sudo mount /dev/sdb1 /mnt
-```
 
-## Set Ownership
-
-```bash
+# Set ownership to the current user
 sudo chown -R $USER:$USER /mnt
-```
 
-## Create Backup Folder
-
-```bash
+# Create a folder for backups
 mkdir /mnt/backup
 ```
 
 ## Recommended Future Improvement
 
 Use `/etc/fstab` with UUID for automatic mounting on boot.
+
+
+
+
+
+
+
+
+
+
+
+
+#todo redo the below sections into something simpler and more concise like "Package Setup" with subsections for Tailscale, Samba, UPS monitoring, etc.
 
 # Remote Access (Tailscale)
 
@@ -204,69 +279,38 @@ UPS configuration depends on the exact UPS model.
 
 # Useful Commands
 
-## System Updates
-
 ```bash
+# Update package lists and install all available upgrades
 sudo apt update && sudo apt full-upgrade -y
-```
 
-## Reboot
-
-```bash
+# Reboot the Raspberry Pi
 sudo reboot
-```
 
-## Shutdown
-
-```bash
+# Shut down immediately
 sudo shutdown now
-```
 
-## Temperature
-
-```bash
+# Show CPU temperature
 vcgencmd measure_temp
-```
 
-## Voltage
-
-```bash
+# Show core voltage
 vcgencmd measure_volts core
-```
 
-## Throttling / Undervoltage Status
-
-```bash
+# Show throttling / undervoltage history
 vcgencmd get_throttled
-```
 
-## Show Drives
-
-```bash
+# List drives, partitions, and filesystems
 lsblk -f
-```
 
-## Disk Usage
-
-```bash
+# Show disk usage in human-readable format
 df -h
-```
 
-## Unmount Backup Drive
-
-```bash
+# Unmount backup drive
 sudo umount /mnt
-```
 
-## Network Interfaces
-
-```bash
+# Show network interfaces and IP addresses
 ip addr
-```
 
-## Tailscale Status
-
-```bash
+# Show Tailscale connection status
 tailscale status
 ```
 
@@ -280,9 +324,3 @@ tailscale status
 - Automated snapshot replication
 - Remote reboot watchdog
 - Periodic restore testing
-
-# Notes
-
-This node is intended for **backup storage**, not primary storage.
-
-Backups only matter if restores are tested regularly.
