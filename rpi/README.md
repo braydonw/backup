@@ -1,46 +1,288 @@
-Add link to DeskPi Pro repo & ssd setup guide
-Mention using DeskPi Pro V1
-Mention you need to set the always on hardware switch next to the power button
-Mention which dual HDD enclosure you have and what HDD models - both dip switches (1&2) up for RAID 1
-Mention UPS for switch/router, pi, and hdd enclosure
-Mention how to setup the rpi safe shutdown when UPS battery is low (maybe also setup alerts / notifications / email when on battery or shutting down)
+# Raspberry Pi Offsite Backup Node
 
-To install Network UPS Tool
-`sudo apt install nut`
+This folder documents the **remote / offsite backup node** of a larger backup strategy.
 
-Mention using vim.tiny ?
+This system is designed to live at another location and receive backups over a secure network connection. Other backup systems (onsite machines, local redundancy, workflows, retention policies, etc.) are documented elsewhere.
 
-Include code to add to default `~/.bashrc file`
+# Overview
+
+This node provides:
+
+- Remote / offsite backup storage
+- Local disk redundancy via RAID 1 mirror
+- Secure remote access through Tailscale
+- Network file sharing through Samba
+- UPS-backed power protection
+- Low-power always-on operation
+
+# Hardware Setup
+
+## Components Used
+
+### Core System
+
+- Raspberry Pi
+- DeskPi Pro V1
+
+### Boot Drive
+
+- PNY 480GB SSD  
+  `SSD2SC480G1CS1754D117-514`
+
+### Backup Storage
+
+- Dual-bay USB 3.0 RAID enclosure
+- 2x HGST 4TB NAS drives  
+  `HDN724040ALE640`
+
+Configured as:
+
+- RAID 1 (mirror)
+
+### Power Protection
+
+
+- Amazon Basics UPS (600VA / 360W)  
+    `TODO: add model here`
+
+Recommended to power:
+
+- Modem / router
+- Network switch
+- Raspberry Pi
+- RAID enclosure
+
+## Hardware Configuration
+
+### DeskPi Pro
+
+Set the **Always On** hardware switch (next to the power button).
+
+This allows the system to automatically power back on after a power outage.
+
+### RAID Enclosure
+
+Set enclosure DIP switches for RAID 1 mirror mode:
+
+- Switch 1 = UP
+- Switch 2 = UP
+
+### Wiring Notes
+
+- Connect all devices to a UPS-backed power strip (#todo)
+- Connect Raspberry Pi to network via Ethernet
+- Connect RAID enclosure to Raspberry Pi via USB
+- Connect UPS USB data cable to Raspberry Pi for monitoring and safe shutdown events
+
+# Software Setup
+
+## Operating System
+
+Currently using **Raspberry Pi OS**, which is based on Debian Trixie and includes the Raspberry Pi Desktop environment.
+
+## DeskPi Pro Setup
+
+Follow the official DeskPi setup guide:
+
+https://github.com/DeskPi-Team/deskpi
+
+No need to duplicate their instructions here.
+
+## Initial Updates
+
 ```bash
-vim.tiny ~/.bashrc
-source ~/.bashrc
+sudo apt update && sudo apt full-upgrade -y
 ```
+
+## Base Raspberry Pi Configuration
+
 ```bash
-# Braydon Custom
-alias temp="vcgenmd measure_temp"
-alias voltage="vcgencmd measure_volts core"
-alias throttled="vcgencmd get_throttled"
+sudo raspi-config
 ```
 
-Mention useful commands:
-`temp` (alias to check CPU temp)
-`sudo apt update && sudo apt full-upgrade -y`
-`sudo raspi-config`
-`sudo deskpi-config`
+## DeskPi Configuration Utility
 
-- Mention ALL above steps in a nice format / order
-    - Hardware
-        - Flip always on switch in DeskPi Pro (near power button)
-        - Connect everything. Router/switch, RPi, HDD bay power into power strip. Power strip into wall. Power strip USB into RPi. Switch ethernet into RPi. HDD bay USB into RPi.
-    - Software
-        - follow these instructions to setup DeskPi pro: https://github.com/DeskPi-Team/deskpi
-            - install Raspberry Pi OS Full
-                - https://www.raspberrypi.com/software/operating-systems/
-                - current: Debian Trixie 64 bit
-        - bashrc setup
-            - see above
-        - install NUT & configure safe shutdown on low battery
-            - `sudo apt install nut`
-            - what else? TBD
-        - install Tailscale 
-            - https://tailscale.com/docs/install/linux
+```bash
+sudo deskpi-config
+```
+
+# Storage Setup
+
+## Prepare RAID Volume
+
+Use GParted or another partitioning tool.
+
+Recommended configuration:
+
+- Partition Table: `gpt`
+- Filesystem: `ext4`
+- Label: `nas`
+
+Expected device:
+
+```bash
+/dev/sdb1
+```
+
+## Mount Drive
+
+```bash
+sudo mount /dev/sdb1 /mnt
+```
+
+## Set Ownership
+
+```bash
+sudo chown -R $USER:$USER /mnt
+```
+
+## Create Backup Folder
+
+```bash
+mkdir /mnt/backup
+```
+
+## Recommended Future Improvement
+
+Use `/etc/fstab` with UUID for automatic mounting on boot.
+
+# Remote Access (Tailscale)
+
+Install Tailscale:
+
+https://tailscale.com/docs/install/linux
+
+Then run:
+
+```bash
+sudo tailscale up
+```
+
+Use cases:
+
+- Remote SSH access
+- Remote administration
+- Secure SMB access over private network
+
+# File Sharing (Samba)
+
+Install Samba:
+
+```bash
+sudo apt install samba
+```
+
+Typical shared path:
+
+```bash
+/mnt/backup
+```
+
+Recommended hardening:
+
+- Dedicated backup user
+- Strong password
+- Restrict access to Tailscale network only
+- Disable guest access
+
+# UPS Safe Shutdown
+
+Install Network UPS Tools:
+
+```bash
+sudo apt install nut
+```
+
+Goal:
+
+- Detect power loss
+- Monitor battery runtime
+- Graceful shutdown when battery is low
+- Optional alerts / notifications
+
+UPS configuration depends on the exact UPS model.
+
+# Useful Commands
+
+## System Updates
+
+```bash
+sudo apt update && sudo apt full-upgrade -y
+```
+
+## Reboot
+
+```bash
+sudo reboot
+```
+
+## Shutdown
+
+```bash
+sudo shutdown now
+```
+
+## Temperature
+
+```bash
+vcgencmd measure_temp
+```
+
+## Voltage
+
+```bash
+vcgencmd measure_volts core
+```
+
+## Throttling / Undervoltage Status
+
+```bash
+vcgencmd get_throttled
+```
+
+## Show Drives
+
+```bash
+lsblk -f
+```
+
+## Disk Usage
+
+```bash
+df -h
+```
+
+## Unmount Backup Drive
+
+```bash
+sudo umount /mnt
+```
+
+## Network Interfaces
+
+```bash
+ip addr
+```
+
+## Tailscale Status
+
+```bash
+tailscale status
+```
+
+# Future Improvements
+
+- `/etc/fstab` auto-mount by UUID
+- SMART monitoring
+- Drive health alerts
+- Email notifications
+- Samba hardening
+- Automated snapshot replication
+- Remote reboot watchdog
+- Periodic restore testing
+
+# Notes
+
+This node is intended for **backup storage**, not primary storage.
+
+Backups only matter if restores are tested regularly.
