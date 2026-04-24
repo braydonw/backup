@@ -99,14 +99,6 @@ sudo raspi-config # Enable auto-login to console & desktop
 sudo deskpi-config # Enable automatic fan control or configure fan curve
 ```
 
-
-
-
-
-
-
-
-
 # Storage Setup
 
 Use GParted or another partitioning tool.
@@ -121,7 +113,7 @@ Expected device: `/dev/sdb1` (verify with `lsblk -f`)
 
 ```bash
 # Create permanent mount point
-sudo mkdir -p /srv/backup
+sudo mkdir -p /srv/nas
 
 # Find the UUID of /dev/sdb1
 lsblk -f
@@ -133,7 +125,10 @@ sudo cp /etc/fstab /etc/fstab.bak
 sudo nano /etc/fstab
 
 # Add this line to /etc/fstab (replace with actual UUID)
-UUID=YOUR-UUID-HERE /srv/backup ext4 defaults,nofail,noatime 0 2
+UUID=YOUR-UUID-HERE /srv/nas ext4 defaults,nofail,noatime 0 2
+
+# Reload systemd to apply changes
+sudo systemctl daemon-reload
 
 # Test fstab without rebooting
 sudo mount -a
@@ -142,19 +137,13 @@ sudo mount -a
 df -h
 
 # Set ownership to current user
-sudo chown -R $USER:$USER /srv/backup
+sudo chown -R $USER:$USER /srv/nas
 
 # Create backup folder
-mkdir -p /srv/backup/backup
+mkdir -p /srv/nas/backup
 ```
 
-After reboot or power restoration, the RAID volume will automatically mount to:
-
-`/srv/backup`
-
-Primary backup folder:
-
-`/srv/backup/backup`
+After reboot or power restoration, the RAID volume will automatically mount to: `/srv/nas`
 
 
 
@@ -169,55 +158,9 @@ Primary backup folder:
 
 
 
-
-
-
-
-
-
-
-# Storage Setup
-
-## Prepare RAID Volume
-
-Use GParted or another partitioning tool.
-
-Recommended configuration:
-
-- Partition Table: `gpt`
-- Filesystem: `ext4`
-- Label: `nas`
-
-Expected device: `/dev/sdb1` (verify with `lsblk`)
-
-
-## Mount and Set Permissions
-
-```bash
-# Mount the RAID volume
-sudo mount /dev/sdb1 /mnt
-
-# Set ownership to the current user
-sudo chown -R $USER:$USER /mnt
-
-# Create a folder for backups
-mkdir /mnt/backup
-```
-
-## Recommended Future Improvement
-
-Use `/etc/fstab` with UUID for automatic mounting on boot.
-
-
-
-
-
-
-
-
-
-
-
+---
+---
+---
 
 #todo redo the below sections into something simpler and more concise like "Package Setup" with subsections for Tailscale, Samba, UPS monitoring, etc.
 
