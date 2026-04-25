@@ -10,8 +10,8 @@ This node provides:
 
 - Remote / offsite backup storage
 - Local disk redundancy via RAID 1 mirror
-- Secure remote access through Tailscale
-- Network file sharing through Samba
+- Secure remote access through [Tailscale](https://tailscale.com/)
+- Network file sharing through [Samba](https://www.samba.org/)
 - UPS-backed power protection
 - Low-power always-on operation
 
@@ -21,7 +21,7 @@ This node provides:
 
 ### Core System
 
-- Raspberry Pi
+- Raspberry Pi 4 Model B (4GB RAM)
 - DeskPi Pro V1
 
 ### Boot Drive
@@ -77,7 +77,9 @@ Set enclosure DIP switches for RAID 1 mirror mode:
 
 ## Initial System Setup
 
-Follow the official DeskPi setup guide: https://github.com/DeskPi-Team/deskpi
+Follow the official DeskPi [setup guide](https://github.com/DeskPi-Team/deskpi) and refer to their [wiki](https://wiki.deskpi.com/deskpipro/) for more details and troubleshooting.
+
+You can also watch [this](https://youtu.be/eaXC5O3amfA) video for a walkthrough of the initial setup process and [this](https://youtu.be/BLfpZWI_yDA) video for SSD setup instructions.
 
 The latest Raspberry Pi Imager allows you to pre-configure the OS image with settings like:
 
@@ -85,7 +87,7 @@ The latest Raspberry Pi Imager allows you to pre-configure the OS image with set
 - Set username/password (`bw`/`password`)
 - Configure Wi-Fi (if needed)
 - Enable SSH & add keys for remote access (use Bitwarden SSH key storage)
-- Enable Raspberry Pi Connect
+- Enable Raspberry Pi Connect (optional)
 - #todo walk through this again on Windows and update this list / fix the order)
 
 ```bash
@@ -93,10 +95,13 @@ The latest Raspberry Pi Imager allows you to pre-configure the OS image with set
 sudo apt update && sudo apt full-upgrade -y
 
 # Run base Raspberry Pi configuration utility
-sudo raspi-config # Enable auto-login to console & desktop
+# - Enable command-line boot (1 → S5 → B1)
+# - Enable auto login (1 → S6)
+sudo raspi-config 
 
 # Run DeskPi Pro configuration utility
-sudo deskpi-config # Enable automatic fan control or configure fan curve
+# - Manually configure fan curve or enable auto mode (6 or 7)
+sudo deskpi-config 
 ```
 
 # Storage Setup
@@ -141,6 +146,9 @@ sudo chown -R $USER:$USER /srv/nas
 
 # Create backup folder
 mkdir -p /srv/nas/backup
+
+# Create symlink for easier access
+ln -s /srv/nas ~/nas
 ```
 
 After reboot or power restoration, the RAID volume will automatically mount to: `/srv/nas`
@@ -203,7 +211,7 @@ Recommended hardening:
 - Restrict access to Tailscale network only
 - Disable guest access
 
-# UPS Safe Shutdown
+# UPS Safe Shutdown (NUT)
 
 Install Network UPS Tools:
 
@@ -241,6 +249,12 @@ vcgencmd measure_volts core
 # Show throttling / undervoltage history
 vcgencmd get_throttled
 
+# Show system uptime in human-readable format
+uptime -p
+
+# Show system boot date and time
+uptime -s
+
 # List drives, partitions, and filesystems
 lsblk -f
 
@@ -257,9 +271,18 @@ ip addr
 tailscale status
 ```
 
+# TODO
+
+- Figure out if using samba or something else, update docs, remove all samba references if needed
+- Figure out if you can spin-down hdds when not in use, update this README with instructions
+- See how much of this you can script, create the script, add it to this folder, update README
+    - Script can help reduce the stuff in this README and be self-documenting with comments and clear structure
+- MAYBE: Add bashrc aliases again (temp, etc.), update script to append to bashrc (idempotent), add list of useful aliases to README
+- Figure out how to configure fans so they are normally off and only turn on when the CPU reaches a certain temperature, update script (if possible) and README with instructions
+- Configure neovim & lazyvim, then update any vim.tiny / nano references in this README to neovim
+
 # Future Improvements
 
-- `/etc/fstab` auto-mount by UUID
 - SMART monitoring
 - Drive health alerts
 - Email notifications
@@ -267,3 +290,83 @@ tailscale status
 - Automated snapshot replication
 - Remote reboot watchdog
 - Periodic restore testing
+
+
+
+
+
+
+
+
+
+
+
+
+
+# NEW
+
+## Bashrc
+
+```bash
+# Braydon Custom
+alias temp="vcgenmd measure_temp"
+alias voltage="vcgencmd measure_volts core"
+alias throttled="vcgencmd get_throttled"
+```
+
+## HDD Spin-Down
+
+https://github.com/adelolmo/hd-idle
+
+
+```bash
+# Install hd-idle for hard drive spin-down management
+sudo apt install hd-idle
+
+# Edit hd-idle configuration
+sudo nano /etc/default/hd-idle
+
+# Change this line from false to true & close the file
+START_HD_IDLE=true
+
+# Enable hd-idle to start on boot and start the service immediately
+sudo systemctl enable --now hd-idle
+
+```
+
+
+
+
+sudo apt install sysstat
+sudo apt-get install smartmontools
+
+disabled hd-idle
+sudo apt-get install sdparm
+
+
+
+sudo systemctl status hd-idle
+sudo nano /etc/default/hd-idle
+sudo systemctl restart hd-idle
+sudo smartctl -a -n standby /dev/sdb
+sudo smartctl -d ata -n standby /dev/sdb
+sudo iostat -x 1 5 /dev/sdb
+sudo smartctl -d ata -i -n standby /dev/sdb
+sudo hdparm -S 0 /dev/sdb
+
+sudo smartctl -a /dev/sdb --device=scsi
+sudo smartctl -d scsi -n standby /dev/sdb
+    # actually reports active (so use scsi, not ata)
+sudo cat /var/log/hd-idle.log
+
+# standby
+sudo hdparm -y /dev/sdb
+# sleep
+sudo hdparm -Y /dev/sdb
+# check status
+sudo hdparm -C /dev/sdb
+
+# view settings
+sudo hdparm -I /dev/sdb
+sudo hdparm -i /dev/sdb
+
