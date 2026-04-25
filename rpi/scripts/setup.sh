@@ -28,13 +28,13 @@ STEPS=(
     "00-preflight.sh|Preflight checks"
     "10-system-update.sh|System update"
     "20-install-packages.sh|Install packages"
-    "30-configure-storage.sh|Configure storage"
-    "40-configure-tailscale.sh|Configure Tailscale"
-    "50-configure-samba.sh|Configure Samba"
-    "60-configure-nut.sh|Configure UPS monitoring"
-    "70-configure-bashrc.sh|Configure shell aliases"
-    "80-configure-spindown.sh|Configure HDD spin-down"
-    "90-final-checks.sh|Final checks"
+    # "30-configure-storage.sh|Configure storage"
+    # "40-configure-tailscale.sh|Configure Tailscale"
+    # "50-configure-samba.sh|Configure Samba"
+    # "60-configure-nut.sh|Configure UPS monitoring"
+    # "70-configure-bashrc.sh|Configure shell aliases"
+    # "80-configure-spindown.sh|Configure HDD spin-down"
+    # "90-final-checks.sh|Final checks"
 )
 
 for step_entry in "${STEPS[@]}"; do
