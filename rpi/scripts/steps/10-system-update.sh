@@ -17,8 +17,8 @@ check() {
 run() {
     require_sudo
 
-    sudo apt update
-    sudo apt full-upgrade -y
+    sudo apt-get update
+    sudo apt-get full-upgrade -y
 
     echo "System update complete."
 }

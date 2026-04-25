@@ -22,7 +22,6 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 print_step_header "Raspberry Pi Offsite Backup Node Setup"
 
 echo "Log file: $LOG_FILE"
-echo
 
 STEPS=(
     "00-preflight.sh|Preflight checks"
