@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [[ -t 1 ]] && [[ "${NO_COLOR:-}" == "" ]]; then
+if [[ "${NO_COLOR:-}" == "" ]] && { [[ -t 1 ]] || [[ "${FORCE_COLOR:-}" == "1" ]]; }; then
     COLOR_RESET=$'\033[0m'
     COLOR_BOLD=$'\033[1m'
     COLOR_DIM=$'\033[2m'

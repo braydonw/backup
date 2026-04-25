@@ -19,6 +19,8 @@ LOG_FILE="$LOG_DIR/setup-$(date +%Y%m%d-%H%M%S).log"
 
 exec > >(tee -a "$LOG_FILE") 2>&1
 
+export FORCE_COLOR=1
+
 print_main_title "Raspberry Pi Offsite Backup Node Setup"
 key_value "Log file" "$LOG_FILE"
 
