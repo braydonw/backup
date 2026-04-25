@@ -1,0 +1,4 @@
+# Raspberry Pi setup local files
+rpi/scripts/setup.conf
+rpi/logs/
+*.log
