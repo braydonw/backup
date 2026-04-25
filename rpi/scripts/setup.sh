@@ -26,7 +26,7 @@ echo
 
 STEPS=(
     "00-preflight.sh|Preflight checks"
-    # "10-system-update.sh|System update"
+    "10-system-update.sh|System update"
     # "20-install-packages.sh|Install packages"
     # "30-configure-storage.sh|Configure storage"
     # "40-configure-tailscale.sh|Configure Tailscale"
