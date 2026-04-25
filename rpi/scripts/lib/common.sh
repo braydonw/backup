@@ -2,6 +2,99 @@
 
 set -euo pipefail
 
+# -----------------------------
+# Terminal colors / formatting
+# -----------------------------
+
+if [[ -t 1 ]] && [[ "${NO_COLOR:-}" == "" ]]; then
+    COLOR_RESET=$'\033[0m'
+    COLOR_BOLD=$'\033[1m'
+    COLOR_DIM=$'\033[2m'
+
+    COLOR_RED=$'\033[31m'
+    COLOR_GREEN=$'\033[32m'
+    COLOR_YELLOW=$'\033[33m'
+    COLOR_BLUE=$'\033[34m'
+    COLOR_MAGENTA=$'\033[35m'
+    COLOR_CYAN=$'\033[36m'
+    COLOR_GRAY=$'\033[90m'
+else
+    COLOR_RESET=""
+    COLOR_BOLD=""
+    COLOR_DIM=""
+
+    COLOR_RED=""
+    COLOR_GREEN=""
+    COLOR_YELLOW=""
+    COLOR_BLUE=""
+    COLOR_MAGENTA=""
+    COLOR_CYAN=""
+    COLOR_GRAY=""
+fi
+
+print_main_title() {
+    local message="$1"
+
+    echo
+    printf '%s%s%s\n' "$COLOR_BOLD$COLOR_MAGENTA" "$message" "$COLOR_RESET"
+    echo
+}
+
+print_step_header() {
+    local message="$1"
+
+    echo
+    printf '%s%s%s\n' "$COLOR_BOLD$COLOR_CYAN" "$message" "$COLOR_RESET"
+}
+
+print_subheader() {
+    local message="$1"
+
+    echo
+    printf '%s%s%s\n' "$COLOR_BOLD$COLOR_BLUE" "$message" "$COLOR_RESET"
+}
+
+info() {
+    local message="$1"
+
+    printf '%s%s%s\n' "$COLOR_BLUE" "$message" "$COLOR_RESET"
+}
+
+success() {
+    local message="$1"
+
+    printf '%s%s%s\n' "$COLOR_GREEN" "$message" "$COLOR_RESET"
+}
+
+warn() {
+    local message="$1"
+
+    printf '%sWarning:%s %s\n' "$COLOR_YELLOW" "$COLOR_RESET" "$message"
+}
+
+error() {
+    local message="$1"
+
+    printf '%sError:%s %s\n' "$COLOR_RED" "$COLOR_RESET" "$message" >&2
+}
+
+muted() {
+    local message="$1"
+
+    printf '%s%s%s\n' "$COLOR_GRAY" "$message" "$COLOR_RESET"
+}
+
+key_value() {
+    local key="$1"
+    local value="$2"
+
+    printf '%s%s:%s %s\n' "$COLOR_BOLD" "$key" "$COLOR_RESET" "$value"
+}
+
+# -----------------------------
+# General helpers
+# -----------------------------
+
 get_script_dir() {
     cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
 }
@@ -26,14 +119,14 @@ require_command() {
     local command_name="$1"
 
     if ! command -v "$command_name" >/dev/null 2>&1; then
-        echo "Missing required command: $command_name"
+        error "Missing required command: $command_name"
         return 1
     fi
 }
 
 require_sudo() {
     if ! sudo -v; then
-        echo "This step requires sudo."
+        error "This step requires sudo."
         return 1
     fi
 }
@@ -71,7 +164,9 @@ backup_file() {
         local backup_path
         backup_path="$file.bak.$(date +%Y%m%d-%H%M%S)"
 
-        echo "Backing up $file to $backup_path"
+        info "Backing up $file"
+        muted "Backup path: $backup_path"
+
         sudo cp "$file" "$backup_path"
     fi
 }
@@ -87,9 +182,12 @@ append_line_if_missing() {
     local file="$1"
     local line="$2"
 
-    if ! line_exists "$file" "$line"; then
-        echo "$line" | sudo tee -a "$file" >/dev/null
+    if line_exists "$file" "$line"; then
+        muted "Line already exists in $file"
+        return 0
     fi
+
+    echo "$line" | sudo tee -a "$file" >/dev/null
 }
 
 managed_block_exists() {
@@ -138,7 +236,7 @@ load_config() {
     local example_config_file="$script_root/setup.conf.example"
 
     if [[ ! -f "$config_file" ]]; then
-        echo "Creating local config from setup.conf.example"
+        info "Creating local config from setup.conf.example"
         cp "$example_config_file" "$config_file"
     fi
 

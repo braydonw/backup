@@ -15,9 +15,10 @@ check() {
     require_command systemctl
     require_command lsblk
     require_command findmnt
+    require_command dpkg
 
     if ! is_debian_like; then
-        echo "This script expects Raspberry Pi OS / Debian-like Linux."
+        error "This script expects Raspberry Pi OS / Debian-like Linux."
         return 2
     fi
 
@@ -25,35 +26,32 @@ check() {
 }
 
 run() {
-    echo
-    echo "OS:"
-    cat /etc/os-release
+    print_subheader "System information"
+
+    key_value "OS" "$(grep '^PRETTY_NAME=' /etc/os-release | cut -d= -f2- | tr -d '"')"
+    key_value "Kernel" "$(uname -r)"
+    key_value "Hostname" "$(hostname)"
     echo
 
-    echo "Kernel:"
-    uname -a
-    echo
-
-    echo "Detected block devices:"
+    print_subheader "Block devices"
     lsblk -f
     echo
 
     if is_raspberry_pi; then
-        echo "Raspberry Pi model:"
+        print_subheader "Raspberry Pi model"
         tr -d '\0' < /proc/device-tree/model
         echo
     else
-        echo "Warning: this does not appear to be a Raspberry Pi."
+        warn "This does not appear to be a Raspberry Pi."
     fi
 
-    echo
     require_sudo
 
-    echo "Preflight checks complete."
+    success "Preflight checks complete."
 }
 
 case "${1:-}" in
     check) check ;;
     run) run ;;
-    *) echo "Usage: $0 {check|run}"; exit 2 ;;
+    *) error "Usage: $0 {check|run}"; exit 2 ;;
 esac

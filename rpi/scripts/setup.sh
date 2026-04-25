@@ -19,9 +19,10 @@ LOG_FILE="$LOG_DIR/setup-$(date +%Y%m%d-%H%M%S).log"
 
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-print_step_header "Raspberry Pi Offsite Backup Node Setup"
+print_main_title "Raspberry Pi Offsite Backup Node Setup"
 
-echo "Log file: $LOG_FILE"
+key_value "Log file" "$LOG_FILE"
+echo
 
 STEPS=(
     "00-preflight.sh|Preflight checks"
@@ -43,7 +44,7 @@ for step_entry in "${STEPS[@]}"; do
     print_step_header "$step_title"
 
     if [[ ! -x "$step_path" ]]; then
-        echo "Step script is missing or not executable: $step_path"
+        error "Step script is missing or not executable: $step_path"
         exit 1
     fi
 
@@ -54,25 +55,25 @@ for step_entry in "${STEPS[@]}"; do
 
     case "$check_result" in
         0)
-            echo "Already complete. Skipping."
+            success "Already complete. Skipping."
             ;;
         1)
+            warn "This step is not complete."
             if confirm "Run this step?" "y"; then
                 "$step_path" run
             else
-                echo "Skipped by user."
+                muted "Skipped by user."
             fi
             ;;
         *)
-            echo "Check failed with exit code $check_result."
+            error "Check failed with exit code $check_result."
             exit "$check_result"
             ;;
     esac
+
+    echo
 done
 
-print_step_header "Setup complete"
-echo
+print_main_title "Setup complete"
 
-echo "Review the log if needed:"
-echo "$LOG_FILE"
-echo
+key_value "Log file" "$LOG_FILE"

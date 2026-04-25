@@ -11,20 +11,24 @@ load_config "$SCRIPT_ROOT"
 
 check() {
     # Package freshness is time-dependent, so this step should remain prompt-driven.
+    info "System updates are intentionally prompt-driven."
     return 1
 }
 
 run() {
     require_sudo
 
+    info "Updating package lists..."
     sudo apt-get update
+
+    info "Installing available upgrades..."
     sudo apt-get full-upgrade -y
 
-    echo "System update complete."
+    success "System update complete."
 }
 
 case "${1:-}" in
     check) check ;;
     run) run ;;
-    *) echo "Usage: $0 {check|run}"; exit 2 ;;
+    *) error "Usage: $0 {check|run}"; exit 2 ;;
 esac

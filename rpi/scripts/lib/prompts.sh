@@ -21,12 +21,3 @@ pause_until_ready() {
     echo "$message"
     read -r -p "Press Enter to continue..."
 }
-
-print_step_header() {
-    local title="$1"
-
-    echo
-    echo "============================================================"
-    echo "$title"
-    echo "============================================================"
-}
