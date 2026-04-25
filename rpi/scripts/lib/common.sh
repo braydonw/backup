@@ -2,15 +2,10 @@
 
 set -euo pipefail
 
-# -----------------------------
-# Terminal colors / formatting
-# -----------------------------
-
 if [[ -t 1 ]] && [[ "${NO_COLOR:-}" == "" ]]; then
     COLOR_RESET=$'\033[0m'
     COLOR_BOLD=$'\033[1m'
     COLOR_DIM=$'\033[2m'
-
     COLOR_RED=$'\033[31m'
     COLOR_GREEN=$'\033[32m'
     COLOR_YELLOW=$'\033[33m'
@@ -22,7 +17,6 @@ else
     COLOR_RESET=""
     COLOR_BOLD=""
     COLOR_DIM=""
-
     COLOR_RED=""
     COLOR_GREEN=""
     COLOR_YELLOW=""
@@ -35,23 +29,19 @@ fi
 print_main_title() {
     local message="$1"
 
-    echo
-    printf '%s%s%s\n' "$COLOR_BOLD$COLOR_MAGENTA" "$message" "$COLOR_RESET"
-    echo
+    printf '\n%s%s%s\n' "$COLOR_BOLD$COLOR_MAGENTA" "$message" "$COLOR_RESET"
 }
 
 print_step_header() {
     local message="$1"
 
-    echo
-    printf '%s%s%s\n' "$COLOR_BOLD$COLOR_CYAN" "$message" "$COLOR_RESET"
+    printf '\n%s%s%s\n' "$COLOR_BOLD$COLOR_CYAN" "$message" "$COLOR_RESET"
 }
 
 print_subheader() {
     local message="$1"
 
-    echo
-    printf '%s%s%s\n' "$COLOR_BOLD$COLOR_BLUE" "$message" "$COLOR_RESET"
+    printf '\n%s%s%s\n' "$COLOR_BOLD$COLOR_BLUE" "$message" "$COLOR_RESET"
 }
 
 info() {
@@ -89,30 +79,6 @@ key_value() {
     local value="$2"
 
     printf '%s%s:%s %s\n' "$COLOR_BOLD" "$key" "$COLOR_RESET" "$value"
-}
-
-# -----------------------------
-# General helpers
-# -----------------------------
-
-get_script_dir() {
-    cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
-}
-
-get_repo_root() {
-    local current_dir
-    current_dir="$(pwd)"
-
-    while [[ "$current_dir" != "/" ]]; do
-        if [[ -d "$current_dir/.git" ]]; then
-            echo "$current_dir"
-            return 0
-        fi
-
-        current_dir="$(dirname "$current_dir")"
-    done
-
-    pwd
 }
 
 require_command() {

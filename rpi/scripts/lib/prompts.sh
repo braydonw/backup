@@ -17,7 +17,6 @@ confirm() {
 pause_until_ready() {
     local message="$1"
 
-    echo
-    echo "$message"
+    printf '\n%s\n' "$message"
     read -r -p "Press Enter to continue..."
 }

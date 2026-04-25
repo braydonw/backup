@@ -20,21 +20,19 @@ LOG_FILE="$LOG_DIR/setup-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 print_main_title "Raspberry Pi Offsite Backup Node Setup"
-
 key_value "Log file" "$LOG_FILE"
-echo
 
 STEPS=(
     "00-preflight.sh|Preflight checks"
     "10-system-update.sh|System update"
-    # "20-install-packages.sh|Install packages"
-    # "30-configure-storage.sh|Configure storage"
-    # "40-configure-tailscale.sh|Configure Tailscale"
-    # "50-configure-samba.sh|Configure Samba"
-    # "60-configure-nut.sh|Configure UPS monitoring"
-    # "70-configure-bashrc.sh|Configure shell aliases"
-    # "80-configure-spindown.sh|Configure HDD spin-down"
-    # "90-final-checks.sh|Final checks"
+    "20-install-packages.sh|Install packages"
+    "30-configure-storage.sh|Configure storage"
+    "40-configure-tailscale.sh|Configure Tailscale"
+    "50-configure-samba.sh|Configure Samba"
+    "60-configure-nut.sh|Configure UPS monitoring"
+    "70-configure-bashrc.sh|Configure shell aliases"
+    "80-configure-spindown.sh|Configure HDD spin-down"
+    "90-final-checks.sh|Final checks"
 )
 
 for step_entry in "${STEPS[@]}"; do
@@ -70,10 +68,7 @@ for step_entry in "${STEPS[@]}"; do
             exit "$check_result"
             ;;
     esac
-
-    echo
 done
 
 print_main_title "Setup complete"
-
 key_value "Log file" "$LOG_FILE"

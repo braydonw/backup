@@ -27,26 +27,22 @@ check() {
 
 run() {
     print_subheader "System information"
-
     key_value "OS" "$(grep '^PRETTY_NAME=' /etc/os-release | cut -d= -f2- | tr -d '"')"
     key_value "Kernel" "$(uname -r)"
     key_value "Hostname" "$(hostname)"
-    echo
 
     print_subheader "Block devices"
     lsblk -f
-    echo
 
     if is_raspberry_pi; then
         print_subheader "Raspberry Pi model"
         tr -d '\0' < /proc/device-tree/model
-        echo
+        printf '\n'
     else
         warn "This does not appear to be a Raspberry Pi."
     fi
 
     require_sudo
-
     success "Preflight checks complete."
 }
 

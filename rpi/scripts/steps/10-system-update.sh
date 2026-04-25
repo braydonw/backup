@@ -10,7 +10,6 @@ source "$SCRIPT_ROOT/lib/common.sh"
 load_config "$SCRIPT_ROOT"
 
 check() {
-    # Package freshness is time-dependent, so this step should remain prompt-driven.
     info "System updates are intentionally prompt-driven."
     return 1
 }
