@@ -72,6 +72,8 @@ for step_entry in "${STEPS[@]}"; do
 done
 
 print_step_header "Setup complete"
+echo
 
 echo "Review the log if needed:"
 echo "$LOG_FILE"
+echo

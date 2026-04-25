@@ -25,6 +25,7 @@ check() {
 }
 
 run() {
+    echo
     echo "OS:"
     cat /etc/os-release
     echo
@@ -45,6 +46,7 @@ run() {
         echo "Warning: this does not appear to be a Raspberry Pi."
     fi
 
+    echo
     require_sudo
 
     echo "Preflight checks complete."
