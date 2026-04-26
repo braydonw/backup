@@ -33,8 +33,10 @@ fi
 # }
 
 clear_screen() {
-    if [[ -t /dev/tty ]]; then
+    if [[ -w /dev/tty ]]; then
         printf '\033[2J\033[H' > /dev/tty
+    else
+        printf '\033[2J\033[H'
     fi
 }
 
