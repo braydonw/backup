@@ -14,7 +14,7 @@ NAS_MOUNT_OPTIONS="defaults,nofail,noatime"
 # Optional features
 ENABLE_TAILSCALE="true"
 # ENABLE_SAMBA="false"
-ENABLE_NUT="false"
+ENABLE_NUT="true"
 ENABLE_SPINDOWN="false"
 ENABLE_BASH_ALIASES="true"
 
