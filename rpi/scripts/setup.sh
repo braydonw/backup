@@ -31,7 +31,7 @@ require_sudo
 success "Sudo access confirmed."
 
 STEPS=(
-    "00-initial-checks|Initial checks"
+    "00-initial-checks.sh|Initial checks"
     "10-system-update.sh|System update"
     "20-install-packages.sh|Install packages"
     "30-configure-storage.sh|Configure storage"
