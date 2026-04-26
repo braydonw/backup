@@ -10,7 +10,7 @@ source "$SCRIPT_ROOT/lib/common.sh"
 load_config "$SCRIPT_ROOT"
 
 check() {
-    info "System updates are intentionally prompt-driven."
+    # info "System updates are intentionally prompt-driven."
     return 2
 }
 
