@@ -43,6 +43,7 @@ run() {
     echo "Throttling status:"
     vcgencmd get_throttled || true
 
+    echo
     success "Final checks complete."
 }
 
