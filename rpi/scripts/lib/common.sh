@@ -73,6 +73,8 @@ print_setup_status() {
     key_value "Log file" "$log_file"
     key_value "Progress" "$current_step/$total_steps"
     key_value "Current step" "$current_step_title"
+
+    printf '\n'
 }
 
 # format_success() {
