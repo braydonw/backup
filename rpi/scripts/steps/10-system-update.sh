@@ -26,7 +26,7 @@ run() {
     sudo apt-get full-upgrade -y
 
     echo
-    success "System update complete."
+    # success "System update complete."
 }
 
 case "${1:-}" in

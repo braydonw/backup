@@ -44,7 +44,7 @@ run() {
     vcgencmd get_throttled || true
 
     echo
-    success "Final checks complete."
+    # success "Final checks complete."
 }
 
 case "${1:-}" in

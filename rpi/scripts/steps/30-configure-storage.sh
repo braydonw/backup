@@ -103,7 +103,7 @@ run() {
         warn "Path already exists and is not a symlink: $HOME_NAS_SYMLINK"
     fi
 
-    success "Storage configuration complete."
+    # success "Storage configuration complete."
 }
 
 case "${1:-}" in

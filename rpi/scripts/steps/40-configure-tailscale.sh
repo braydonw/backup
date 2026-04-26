@@ -61,7 +61,7 @@ run() {
         return 1
     fi
 
-    success "Tailscale configuration complete."
+    # success "Tailscale configuration complete."
 }
 
 case "${1:-}" in

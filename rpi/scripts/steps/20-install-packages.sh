@@ -61,7 +61,7 @@ run() {
     printf '  - %s\n' "${packages[@]}"
     sudo apt-get install -y "${packages[@]}"
 
-    success "Package installation complete."
+    # success "Package installation complete."
 }
 
 case "${1:-}" in
