@@ -45,6 +45,10 @@ STEPS=(
 
 TOTAL_STEPS="${#STEPS[@]}"
 
+CHECK_COMPLETE=0
+CHECK_INCOMPLETE=1
+CHECK_PROMPT=2
+
 # wait_for_next_step "Initial checks"
 
 for step_index in "${!STEPS[@]}"; do
@@ -65,13 +69,36 @@ for step_index in "${!STEPS[@]}"; do
     check_result="$?"
     set -e
 
+    # 0 = complete, skip automatically
+    # 1 = incomplete, warn and ask to run
+    # 2 = prompt-driven, ask to run without warning
+    # 3+ = error
     case "$check_result" in
-        0)
+        "$CHECK_COMPLETE")
             success "Completed: $step_title"
             ;;
-        1)
+        "$CHECK_INCOMPLETE")
             warn "This step is not complete."
 
+            if confirm "Run this step?" "y"; then
+                set +e
+                "$step_path" run
+                run_result="$?"
+                set -e
+
+                if [[ "$run_result" -eq 0 ]]; then
+                    success "Completed: $step_title"
+                else
+                    print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title"
+                    error "Failed: $step_title"
+                    error "Step failed. See log file for details: $LOG_FILE"
+                    exit "$run_result"
+                fi
+            else
+                muted "Skipped: $step_title"
+            fi
+            ;;
+        "$CHECK_PROMPT")
             if confirm "Run this step?" "y"; then
                 set +e
                 "$step_path" run
