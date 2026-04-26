@@ -14,6 +14,8 @@ confirm() {
     fi
 }
 
+# TODO: these are only used once each, consider inlining them into setup.sh
+
 pause_until_ready() {
     local message="$1"
 
@@ -26,4 +28,9 @@ wait_for_next_step() {
 
     printf '\n'
     read -r -p "Press Enter to continue to: $next_step_title"
+}
+
+wait_for_finish() {
+    printf '\n'
+    read -r -p "Press Enter to finish setup..."
 }

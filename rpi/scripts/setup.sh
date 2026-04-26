@@ -15,9 +15,6 @@ load_config "$SCRIPT_ROOT"
 cd "$SCRIPT_ROOT/.."
 
 mkdir -p "$LOG_DIR"
-# LOG_FILE="$LOG_DIR/setup-$(date +%Y%m%d-%H%M%S).log"
-# SETUP_TITLE="Raspberry Pi Offsite Backup Node Setup"
-mkdir -p "$LOG_DIR"
 LOG_DIR_ABSOLUTE="$(cd "$LOG_DIR" && pwd)"
 LOG_FILE="$LOG_DIR_ABSOLUTE/setup-$(date +%Y%m%d-%H%M%S).log"
 SETUP_TITLE="Raspberry Pi Offsite Backup Node Setup"
@@ -49,15 +46,16 @@ for step_index in "${!STEPS[@]}"; do
     print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title" "$LAST_STATUS"
 
     if [[ ! -x "$step_path" ]]; then
-        error "Step script is missing or not executable: $step_path" | tee -a "$LOG_FILE"
+        error "Step script is missing or not executable: $step_path"
+        printf 'Error: Step script is missing or not executable: %s\n' "$step_path" >> "$LOG_FILE"
         exit 1
     fi
 
     print_step_header "$step_title"
 
     set +e
-    "$step_path" check 2>&1 | tee -a "$LOG_FILE"
-    check_result="${PIPESTATUS[0]}"
+    run_and_log "$LOG_FILE" "$step_path" check
+    check_result="$?"
     set -e
 
     case "$check_result" in
@@ -69,8 +67,8 @@ for step_index in "${!STEPS[@]}"; do
 
             if confirm "Run this step?" "y"; then
                 set +e
-                "$step_path" run 2>&1 | tee -a "$LOG_FILE"
-                run_result="${PIPESTATUS[0]}"
+                run_and_log "$LOG_FILE" "$step_path" run
+                run_result="$?"
                 set -e
 
                 if [[ "$run_result" -eq 0 ]]; then
@@ -98,6 +96,8 @@ for step_index in "${!STEPS[@]}"; do
     if [[ "$next_step_index" -lt "$TOTAL_STEPS" ]]; then
         IFS="|" read -r _ next_step_title <<< "${STEPS[$next_step_index]}"
         wait_for_next_step "$next_step_title"
+    else
+        wait_for_finish
     fi
 done
 
