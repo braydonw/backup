@@ -42,7 +42,6 @@ run() {
         warn "This does not appear to be a Raspberry Pi."
     fi
 
-    require_sudo
     success "Preflight checks complete."
 }
 

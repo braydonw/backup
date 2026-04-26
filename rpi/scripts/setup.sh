@@ -46,7 +46,7 @@ STEPS=(
 TOTAL_STEPS="${#STEPS[@]}"
 LAST_STATUS="$(format_success "Sudo access confirmed.")"
 
-wait_for_next_step "Preflight checks"
+# wait_for_next_step "Preflight checks"
 
 for step_index in "${!STEPS[@]}"; do
     step_number=$((step_index + 1))
