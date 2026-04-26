@@ -15,7 +15,11 @@ load_config "$SCRIPT_ROOT"
 cd "$SCRIPT_ROOT/.."
 
 mkdir -p "$LOG_DIR"
-LOG_FILE="$LOG_DIR/setup-$(date +%Y%m%d-%H%M%S).log"
+# LOG_FILE="$LOG_DIR/setup-$(date +%Y%m%d-%H%M%S).log"
+# SETUP_TITLE="Raspberry Pi Offsite Backup Node Setup"
+mkdir -p "$LOG_DIR"
+LOG_DIR_ABSOLUTE="$(cd "$LOG_DIR" && pwd)"
+LOG_FILE="$LOG_DIR_ABSOLUTE/setup-$(date +%Y%m%d-%H%M%S).log"
 SETUP_TITLE="Raspberry Pi Offsite Backup Node Setup"
 
 export FORCE_COLOR=1
