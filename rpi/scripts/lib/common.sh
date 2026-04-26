@@ -26,9 +26,15 @@ else
     COLOR_GRAY=""
 fi
 
+# clear_screen() {
+#     if [[ -t 1 ]]; then
+#         printf '\033[2J\033[H'
+#     fi
+# }
+
 clear_screen() {
-    if [[ -t 1 ]]; then
-        printf '\033[2J\033[H'
+    if [[ -t /dev/tty ]]; then
+        printf '\033[2J\033[H' > /dev/tty
     fi
 }
 

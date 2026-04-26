@@ -23,6 +23,13 @@ export FORCE_COLOR=1
 
 exec > >(tee >(perl -pe 's/\e\[[0-9;?]*[ -\/]*[@-~]//g' >> "$LOG_FILE")) 2>&1
 
+print_main_title "$SETUP_TITLE"
+key_value "Log file" "$LOG_FILE"
+
+info "Checking sudo access..."
+require_sudo
+success "Sudo access confirmed."
+
 STEPS=(
     "00-preflight.sh|Preflight checks"
     "10-system-update.sh|System update"
@@ -37,7 +44,9 @@ STEPS=(
 )
 
 TOTAL_STEPS="${#STEPS[@]}"
-LAST_STATUS=""
+LAST_STATUS="$(format_success "Sudo access confirmed.")"
+
+wait_for_next_step "Preflight checks"
 
 for step_index in "${!STEPS[@]}"; do
     step_number=$((step_index + 1))
