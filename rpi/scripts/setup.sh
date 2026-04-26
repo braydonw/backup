@@ -21,6 +21,8 @@ SETUP_TITLE="Raspberry Pi Offsite Backup Node Setup"
 
 export FORCE_COLOR=1
 
+exec > >(tee >(perl -pe 's/\e\[[0-9;?]*[ -\/]*[@-~]//g' >> "$LOG_FILE")) 2>&1
+
 STEPS=(
     "00-preflight.sh|Preflight checks"
     "10-system-update.sh|System update"
@@ -47,14 +49,13 @@ for step_index in "${!STEPS[@]}"; do
 
     if [[ ! -x "$step_path" ]]; then
         error "Step script is missing or not executable: $step_path"
-        printf 'Error: Step script is missing or not executable: %s\n' "$step_path" >> "$LOG_FILE"
         exit 1
     fi
 
     print_step_header "$step_title"
 
     set +e
-    run_and_log "$LOG_FILE" "$step_path" check
+    "$step_path" check
     check_result="$?"
     set -e
 
@@ -67,7 +68,7 @@ for step_index in "${!STEPS[@]}"; do
 
             if confirm "Run this step?" "y"; then
                 set +e
-                run_and_log "$LOG_FILE" "$step_path" run
+                "$step_path" run
                 run_result="$?"
                 set -e
 

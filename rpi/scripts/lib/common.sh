@@ -253,18 +253,3 @@ load_config() {
     # shellcheck source=/dev/null
     source "$config_file"
 }
-
-strip_ansi() {
-    local ansi_escape_regex
-
-    ansi_escape_regex=$'\x1B\\[[0-9;?]*[ -/]*[@-~]'
-    sed -u -E "s/${ansi_escape_regex}//g"
-}
-
-run_and_log() {
-    local log_file="$1"
-    shift
-
-    "$@" 2>&1 | tee >(strip_ansi >> "$log_file")
-    return "${PIPESTATUS[0]}"
-}
