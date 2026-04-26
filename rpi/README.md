@@ -4,7 +4,7 @@ This folder documents the **remote / offsite backup node** of a larger backup st
 
 This system is designed to live at another location and receive backups over a secure network connection. Other backup systems (onsite machines, local redundancy, workflows, retention policies, etc.) are documented elsewhere.
 
-# Overview
+## Overview
 
 This node provides:
 
@@ -15,21 +15,21 @@ This node provides:
 - UPS-backed power protection
 - Low-power always-on operation
 
-# Hardware Setup
+## Hardware Setup
 
-## Components Used
+### Components Used
 
-### Core System
+#### Core System
 
 - Raspberry Pi 4 Model B (4GB RAM)
 - DeskPi Pro V1
 
-### Boot Drive
+#### Boot Drive
 
 - PNY 480GB SSD  
   `SSD2SC480G1CS1754D117-514`
 
-### Backup Storage
+#### Backup Storage
 
 - Dual-bay Cenmate USB 3.0 RAID enclosure  
   `802RU`
@@ -40,7 +40,7 @@ Configured as:
 
 - RAID 1 (mirror)
 
-### Power Protection #todo
+#### Power Protection #todo
 
 - Amazon Basics UPS (600VA / 360W)  
     `TODO: add model here`
@@ -52,31 +52,31 @@ Recommended to power:
 - Raspberry Pi
 - RAID enclosure
 
-## Hardware Configuration
+### Hardware Configuration
 
-### DeskPi Pro
+#### DeskPi Pro
 
 Set the **Always On** hardware switch (next to the power button).
 
 This allows the system to automatically power back on after a power outage.
 
-### RAID Enclosure
+#### RAID Enclosure
 
 Set enclosure DIP switches for RAID 1 mirror mode:
 
 - Switch 1 = UP
 - Switch 2 = UP
 
-### Wiring Notes
+#### Wiring Notes
 
 - Connect all devices to a UPS-backed power strip (#todo)
 - Connect Raspberry Pi to network via Ethernet
 - Connect RAID enclosure to Raspberry Pi via USB
 - Connect UPS USB data cable to Raspberry Pi for monitoring and safe shutdown events
 
-# Software Setup
+## Software Setup
 
-## Initial System Setup
+### Initial System Setup
 
 Follow the official DeskPi [setup guide](https://github.com/DeskPi-Team/deskpi) and refer to their [wiki](https://wiki.deskpi.com/deskpipro/) for more details and troubleshooting.
 
@@ -105,7 +105,7 @@ sudo raspi-config
 sudo deskpi-config 
 ```
 
-# Storage Setup
+## Storage Setup
 
 Use GParted or another partitioning tool.
 
@@ -173,7 +173,7 @@ After reboot or power restoration, the RAID volume will automatically mount to: 
 
 #todo redo the below sections into something simpler and more concise like "Package Setup" with subsections for Tailscale, Samba, UPS monitoring, etc.
 
-# Remote Access (Tailscale)
+## Remote Access (Tailscale)
 
 Install Tailscale:
 
@@ -191,7 +191,7 @@ Use cases:
 - Remote administration
 - Secure SMB access over private network
 
-# File Sharing (Samba)
+## File Sharing (Samba)
 
 Install Samba:
 
@@ -212,7 +212,7 @@ Recommended hardening:
 - Restrict access to Tailscale network only
 - Disable guest access
 
-# UPS Safe Shutdown (NUT)
+## UPS Safe Shutdown (NUT)
 
 Install Network UPS Tools:
 
@@ -229,7 +229,7 @@ Goal:
 
 UPS configuration depends on the exact UPS model.
 
-# Useful Commands
+## Useful Commands
 
 ```bash
 # Update package lists and install all available upgrades
@@ -272,7 +272,7 @@ ip addr
 tailscale status
 ```
 
-# TODO
+## TODO
 
 - Figure out if using samba or something else, update docs, remove all samba references if needed
 - Figure out if you can spin-down hdds when not in use, update this README with instructions
@@ -282,7 +282,7 @@ tailscale status
 - Figure out how to configure fans so they are normally off and only turn on when the CPU reaches a certain temperature, update script (if possible) and README with instructions
 - Configure neovim & lazyvim, then update any vim.tiny / nano references in this README to neovim
 
-# Future Improvements
+## Future Improvements
 
 - SMART monitoring
 - Drive health alerts
