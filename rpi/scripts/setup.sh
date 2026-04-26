@@ -45,9 +45,9 @@ STEPS=(
 
 TOTAL_STEPS="${#STEPS[@]}"
 
-CHECK_COMPLETE=0
-CHECK_INCOMPLETE=1
-CHECK_PROMPT=2
+# CHECK_COMPLETE=0
+# CHECK_INCOMPLETE=1
+# CHECK_PROMPT=2
 
 # wait_for_next_step "Initial checks"
 
@@ -74,10 +74,10 @@ for step_index in "${!STEPS[@]}"; do
     # 2 = prompt-driven, ask to run without warning
     # 3+ = error
     case "$check_result" in
-        "$CHECK_COMPLETE")
+        0)
             success "Completed: $step_title"
             ;;
-        "$CHECK_INCOMPLETE")
+        1)
             warn "This step is not complete."
 
             if confirm "Run this step?" "y"; then
@@ -98,7 +98,7 @@ for step_index in "${!STEPS[@]}"; do
                 muted "Skipped: $step_title"
             fi
             ;;
-        "$CHECK_PROMPT")
+        2)
             if confirm "Run this step?" "y"; then
                 set +e
                 "$step_path" run

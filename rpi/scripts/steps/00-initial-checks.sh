@@ -19,10 +19,10 @@ check() {
 
     if ! is_debian_like; then
         error "This script expects Raspberry Pi OS / Debian-like Linux."
-        return 2
+        return 3
     fi
 
-    return 1
+    return 2
 }
 
 run() {
@@ -42,7 +42,7 @@ run() {
         warn "This does not appear to be a Raspberry Pi."
     fi
 
-    success "Initial checks complete."
+    success "Preflight checks complete."
 }
 
 case "${1:-}" in
