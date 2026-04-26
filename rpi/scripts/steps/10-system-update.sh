@@ -17,12 +17,15 @@ check() {
 run() {
     require_sudo
 
+    echo
     info "Updating package lists..."
     sudo apt-get update
 
+    echo
     info "Installing available upgrades..."
     sudo apt-get full-upgrade -y
 
+    echo
     success "System update complete."
 }
 
