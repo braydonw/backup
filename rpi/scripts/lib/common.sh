@@ -26,6 +26,50 @@ else
     COLOR_GRAY=""
 fi
 
+clear_screen() {
+    if [[ -t 1 ]]; then
+        printf '\033[2J\033[H'
+    fi
+}
+
+print_setup_status() {
+    local title="$1"
+    local log_file="$2"
+    local current_step="$3"
+    local total_steps="$4"
+    local current_step_title="$5"
+    local last_status="${6:-}"
+
+    clear_screen
+
+    print_main_title "$title"
+    key_value "Log file" "$log_file"
+    key_value "Progress" "$current_step/$total_steps"
+    key_value "Current step" "$current_step_title"
+
+    if [[ -n "$last_status" ]]; then
+        printf '\n%s\n' "$last_status"
+    fi
+}
+
+format_success() {
+    local message="$1"
+
+    printf '%s%s%s' "$COLOR_GREEN" "$message" "$COLOR_RESET"
+}
+
+format_error() {
+    local message="$1"
+
+    printf '%sError:%s %s' "$COLOR_RED" "$COLOR_RESET" "$message"
+}
+
+format_muted() {
+    local message="$1"
+
+    printf '%s%s%s' "$COLOR_GRAY" "$message" "$COLOR_RESET"
+}
+
 print_main_title() {
     local message="$1"
 

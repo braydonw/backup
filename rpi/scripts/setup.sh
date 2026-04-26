@@ -16,13 +16,9 @@ cd "$SCRIPT_ROOT/.."
 
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/setup-$(date +%Y%m%d-%H%M%S).log"
-
-exec > >(tee -a "$LOG_FILE") 2>&1
+SETUP_TITLE="Raspberry Pi Offsite Backup Node Setup"
 
 export FORCE_COLOR=1
-
-print_main_title "Raspberry Pi Offsite Backup Node Setup"
-key_value "Log file" "$LOG_FILE"
 
 STEPS=(
     "00-preflight.sh|Preflight checks"
@@ -33,44 +29,69 @@ STEPS=(
     "50-configure-samba.sh|Configure Samba"
     "60-configure-nut.sh|Configure UPS monitoring"
     "70-configure-bashrc.sh|Configure shell aliases"
-    # "80-configure-spindown.sh|Configure HDD spin-down"
-    # "90-final-checks.sh|Final checks"
+    "80-configure-spindown.sh|Configure HDD spin-down"
+    "90-final-checks.sh|Final checks"
 )
 
-for step_entry in "${STEPS[@]}"; do
-    IFS="|" read -r step_script step_title <<< "$step_entry"
+TOTAL_STEPS="${#STEPS[@]}"
+LAST_STATUS=""
+
+for step_index in "${!STEPS[@]}"; do
+    step_number=$((step_index + 1))
+
+    IFS="|" read -r step_script step_title <<< "${STEPS[$step_index]}"
     step_path="$SCRIPT_ROOT/steps/$step_script"
 
-    print_step_header "$step_title"
+    print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title" "$LAST_STATUS"
 
     if [[ ! -x "$step_path" ]]; then
-        error "Step script is missing or not executable: $step_path"
+        error "Step script is missing or not executable: $step_path" | tee -a "$LOG_FILE"
         exit 1
     fi
 
+    print_step_header "$step_title"
+
     set +e
-    "$step_path" check
-    check_result=$?
+    "$step_path" check 2>&1 | tee -a "$LOG_FILE"
+    check_result="${PIPESTATUS[0]}"
     set -e
 
     case "$check_result" in
         0)
-            success "Already complete. Skipping."
+            LAST_STATUS="$(format_success "Completed: $step_title")"
+            sleep 0.4
             ;;
         1)
             warn "This step is not complete."
+
             if confirm "Run this step?" "y"; then
-                "$step_path" run
+                set +e
+                "$step_path" run 2>&1 | tee -a "$LOG_FILE"
+                run_result="${PIPESTATUS[0]}"
+                set -e
+
+                if [[ "$run_result" -eq 0 ]]; then
+                    LAST_STATUS="$(format_success "Completed: $step_title")"
+                    sleep 0.4
+                else
+                    LAST_STATUS="$(format_error "Failed: $step_title")"
+                    print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title" "$LAST_STATUS"
+                    error "Step failed. See log file for details: $LOG_FILE"
+                    exit "$run_result"
+                fi
             else
-                muted "Skipped by user."
+                LAST_STATUS="$(format_muted "Skipped: $step_title")"
+                sleep 0.4
             fi
             ;;
         *)
-            error "Check failed with exit code $check_result."
+            LAST_STATUS="$(format_error "Failed check: $step_title")"
+            print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title" "$LAST_STATUS"
+            error "Check failed with exit code $check_result. See log file for details: $LOG_FILE"
             exit "$check_result"
             ;;
     esac
 done
 
-print_main_title "Setup complete"
-key_value "Log file" "$LOG_FILE"
+print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$TOTAL_STEPS" "$TOTAL_STEPS" "Complete" "$LAST_STATUS"
+success "Setup complete."
