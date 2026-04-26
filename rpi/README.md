@@ -31,7 +31,8 @@ This node provides:
 
 ### Backup Storage
 
-- Dual-bay USB 3.0 RAID enclosure
+- Dual-bay Cenmate USB 3.0 RAID enclosure  
+  `802RU`
 - 2x HGST 4TB NAS drives  
   `HDN724040ALE640`
 
