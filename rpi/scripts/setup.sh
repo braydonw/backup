@@ -31,7 +31,7 @@ require_sudo
 success "Sudo access confirmed."
 
 STEPS=(
-    "00-preflight.sh|Preflight checks"
+    "00-initial-checks|Initial checks"
     "10-system-update.sh|System update"
     "20-install-packages.sh|Install packages"
     "30-configure-storage.sh|Configure storage"
@@ -44,9 +44,8 @@ STEPS=(
 )
 
 TOTAL_STEPS="${#STEPS[@]}"
-LAST_STATUS="$(format_success "Sudo access confirmed.")"
 
-wait_for_next_step "Preflight checks"
+# wait_for_next_step "Initial checks"
 
 for step_index in "${!STEPS[@]}"; do
     step_number=$((step_index + 1))
@@ -54,14 +53,12 @@ for step_index in "${!STEPS[@]}"; do
     IFS="|" read -r step_script step_title <<< "${STEPS[$step_index]}"
     step_path="$SCRIPT_ROOT/steps/$step_script"
 
-    print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title" "$LAST_STATUS"
+    print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title"
 
     if [[ ! -x "$step_path" ]]; then
         error "Step script is missing or not executable: $step_path"
         exit 1
     fi
-
-    print_step_header "$step_title"
 
     set +e
     "$step_path" check
@@ -70,7 +67,7 @@ for step_index in "${!STEPS[@]}"; do
 
     case "$check_result" in
         0)
-            LAST_STATUS="$(format_success "Completed: $step_title")"
+            success "Completed: $step_title"
             ;;
         1)
             warn "This step is not complete."
@@ -82,20 +79,20 @@ for step_index in "${!STEPS[@]}"; do
                 set -e
 
                 if [[ "$run_result" -eq 0 ]]; then
-                    LAST_STATUS="$(format_success "Completed: $step_title")"
+                    success "Completed: $step_title"
                 else
-                    LAST_STATUS="$(format_error "Failed: $step_title")"
-                    print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title" "$LAST_STATUS"
+                    print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title"
+                    error "Failed: $step_title"
                     error "Step failed. See log file for details: $LOG_FILE"
                     exit "$run_result"
                 fi
             else
-                LAST_STATUS="$(format_muted "Skipped: $step_title")"
+                muted "Skipped: $step_title"
             fi
             ;;
         *)
-            LAST_STATUS="$(format_error "Failed check: $step_title")"
-            print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title" "$LAST_STATUS"
+            print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title"
+            error "Failed check: $step_title"
             error "Check failed with exit code $check_result. See log file for details: $LOG_FILE"
             exit "$check_result"
             ;;
@@ -111,5 +108,5 @@ for step_index in "${!STEPS[@]}"; do
     fi
 done
 
-print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$TOTAL_STEPS" "$TOTAL_STEPS" "Complete" "$LAST_STATUS"
+print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$TOTAL_STEPS" "$TOTAL_STEPS" "Complete"
 success "Setup complete."

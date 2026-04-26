@@ -42,7 +42,7 @@ run() {
         warn "This does not appear to be a Raspberry Pi."
     fi
 
-    success "Preflight checks complete."
+    success "Initial checks complete."
 }
 
 case "${1:-}" in
