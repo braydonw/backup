@@ -20,3 +20,10 @@ pause_until_ready() {
     printf '\n%s\n' "$message"
     read -r -p "Press Enter to continue..."
 }
+
+wait_for_next_step() {
+    local next_step_title="${1:-next step}"
+
+    printf '\n'
+    read -r -p "Press Enter to continue to: $next_step_title"
+}

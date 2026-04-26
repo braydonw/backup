@@ -59,7 +59,6 @@ for step_index in "${!STEPS[@]}"; do
     case "$check_result" in
         0)
             LAST_STATUS="$(format_success "Completed: $step_title")"
-            sleep 0.4
             ;;
         1)
             warn "This step is not complete."
@@ -72,7 +71,6 @@ for step_index in "${!STEPS[@]}"; do
 
                 if [[ "$run_result" -eq 0 ]]; then
                     LAST_STATUS="$(format_success "Completed: $step_title")"
-                    sleep 0.4
                 else
                     LAST_STATUS="$(format_error "Failed: $step_title")"
                     print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$step_number" "$TOTAL_STEPS" "$step_title" "$LAST_STATUS"
@@ -81,7 +79,6 @@ for step_index in "${!STEPS[@]}"; do
                 fi
             else
                 LAST_STATUS="$(format_muted "Skipped: $step_title")"
-                sleep 0.4
             fi
             ;;
         *)
@@ -91,6 +88,13 @@ for step_index in "${!STEPS[@]}"; do
             exit "$check_result"
             ;;
     esac
+
+    next_step_index=$((step_index + 1))
+
+    if [[ "$next_step_index" -lt "$TOTAL_STEPS" ]]; then
+        IFS="|" read -r _ next_step_title <<< "${STEPS[$next_step_index]}"
+        wait_for_next_step "$next_step_title"
+    fi
 done
 
 print_setup_status "$SETUP_TITLE" "$LOG_FILE" "$TOTAL_STEPS" "$TOTAL_STEPS" "Complete" "$LAST_STATUS"
