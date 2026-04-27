@@ -90,6 +90,36 @@ The latest Raspberry Pi Imager allows you to pre-configure the OS image with set
 - Enable Raspberry Pi Connect (optional)
 - #todo walk through this again on Windows and update this list / fix the order)
 
+#todo rework this into better format:
+
+- Device
+	- Raspberry Pi 4
+- OS
+	- Raspberry Pi OS (64-bit)
+- Storage
+	- Select SD card
+- Customization
+	- Hostname
+		- rpi
+	- Localization
+		- Capital City: Washington, D.C. (United States)
+		- Time zone: America/Chicago
+		- Keyboard layout: us
+	- User
+		- Username: bw
+		- Password: ***************
+		- Confirm password: ***************
+	- Wi-Fi
+		- Enable SSH: Checked
+		- SSID: bwest
+		- Password: *********
+		- Confirm password: *********
+		- Configure SSH keys (see Bitwarden)
+	- Remote access
+		- Authentication mechanism: Use public key authentication
+	- Raspberry Pi Connect
+		- Enable Raspberry Pi Connect: Checked
+
 Upon first boot, run the following commands:
 
 ```bash
