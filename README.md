@@ -1,4 +1,4 @@
-# backup
+# Backup Architecture
 
 This repository documents my backup architecture, configuration files, and operational runbooks for restoring systems. It's designed around practical recoverability: getting machines back online quickly with critical data intact, without over-engineering for theoretical completeness.
 
@@ -19,7 +19,7 @@ This setup is 3-2-1 inspired rather than strict: multiple recoverable copies acr
 - Goal: keep multiple recoverable copies across local and remote locations
 - Remote/offsite copies currently include **Dropbox** and the **Raspberry Pi** backup host
 
-## Table of Contents (rename this section)
+## Machine-Level Docs
 
 - [Linux](linux/README.md) - Primary
 - [Windows](windows/README.md) - Gaming

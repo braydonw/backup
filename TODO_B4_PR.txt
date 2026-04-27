@@ -1,0 +1,1 @@
+Remove all mac readme and mac/nas scripts
